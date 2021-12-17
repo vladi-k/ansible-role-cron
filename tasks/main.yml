@@ -1,0 +1,40 @@
+---
+- name: Install cron packages
+  ansible.builtin.package:
+    name: "{{ cron_package }}"
+
+- name: Copy scripts
+  ansible.builtin.copy:
+    content: "{{ item.content | default(omit) }}"
+    src: "{{ item.src | default(omit) }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default('0755') }}"
+  loop: "{{ cron_scripts }}"
+
+- name: Create cron jobs
+  ansible.builtin.cron:
+    backup: "{{ item.backup | default(omit) }}"
+    cron_file: "{{ item.cron_file | default(omit) }}"
+    day: "{{ item.day | default(omit) }}"
+    disabled: "{{ item.disabled | default(omit) }}"
+    env: "{{ item.env | default(omit) }}"
+    hour: "{{ item.hour | default(omit) }}"
+    insertafter: "{{ item.insertafter | default(omit) }}"
+    insertbefore: "{{ item.insertbefore | default(omit) }}"
+    job: "{{ item.job | default(omit) }}"
+    minute: "{{ item.minute | default(omit) }}"
+    month: "{{ item.month | default(omit) }}"
+    name: "{{ item.name }}"
+    special_time: "{{ item.special_time | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    user: "{{ item.user | default(omit) }}"
+    weekday: "{{ item.weekday | default(omit) }}"
+  loop: "{{ cron_jobs }}"
+
+- name: Make sure cron service is running
+  ansible.builtin.service:
+    name: "{{ cron_service_name }}"
+    state: started
+    enabled: true
